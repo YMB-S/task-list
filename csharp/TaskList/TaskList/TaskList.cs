@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-
+using System.Xml.Linq;
 using TaskList.Core;
 
 namespace TaskList
@@ -52,9 +52,11 @@ namespace TaskList
 
 		private void AddDummyData()
 		{
-            Execute("add project self-improvement");
-            Execute("add task self-improvement do-thing");
-            Execute("add task self-improvement do-other-thing");
+            Execute("add project ortec-interview");
+            Execute("add task ortec-interview finish-tasklist-application");
+            Execute("add task ortec-interview attend-second-interview");
+            Execute("deadline 1 27-01-2025");
+            Execute("deadline 2 28-01-2025");
 
             Execute("add project learn-more");
             Execute("add task learn-more read-book");
@@ -89,6 +91,9 @@ namespace TaskList
 				case "today":
 					ShowTasksWithDeadlineOfToday();
 					break;
+				case "view-by-deadline":
+					ShowTasksGroupedByDeadline();
+					break;
                 default:
 					Error($"I don't know what the command {command} is.");
 					break;
@@ -98,7 +103,7 @@ namespace TaskList
 		private void Show(bool onlyShowTasksWithDeadlineOfToday)
 		{
             const int formattingIdSpace = -5;
-            const int formattingDescriptionSpace = -25;
+            const int formattingDescriptionSpace = -35;
             const int formattingDoneSpace = -15;
             const int formattingDeadlineSpace = -20;
 
@@ -152,6 +157,38 @@ namespace TaskList
 			Show(onlyShowTasksWithDeadlineOfToday: true);
 		}
 
+		private void ShowTasksGroupedByDeadline()
+		{
+			List<Task> allTasks = GetAllTasks();
+
+            var tasksGroupedByDeadline = allTasks
+            .Where(t => t.Deadline.HasValue)
+            .OrderBy(t => t.Deadline!.Value)
+            .GroupBy(t => t.Deadline!.Value)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+            var tasksWithoutDeadline = allTasks
+                .Where(t => !t.Deadline.HasValue)
+                .ToList();
+
+			console.WriteLine(Environment.NewLine);
+            foreach (var group in tasksGroupedByDeadline)
+            {
+                console.WriteLine($"{group.Key.ToShortDateString()}:");
+                foreach (var task in group.Value)
+                {
+                    console.WriteLine($"\t{task.Id}: {task.Description}");
+                }
+            }
+
+            console.WriteLine(Environment.NewLine);
+            console.WriteLine("No deadline:");
+            foreach (var task in tasksWithoutDeadline)
+            {
+                console.WriteLine($"\t{task.Description}");
+            }
+        }
+
 		private void Add(string[] splitCommandLine)
 		{
 			var subcommand = splitCommandLine[1];
@@ -191,6 +228,21 @@ namespace TaskList
                 .First();
         }
 
+		private List<Task> GetAllTasks()
+		{
+            List<Task> allTasks = new();
+
+            foreach (var listOfTasks in projects.Values)
+            {
+                foreach (var task in listOfTasks)
+                {
+                    allTasks.Add(task);
+                }
+            }
+
+			return allTasks;
+        }
+
 		private void AddDeadline(string[] splitCommandLine)
 		{
 			string taskId = splitCommandLine[1];
@@ -216,7 +268,7 @@ namespace TaskList
 		private void Uncheck(string idString)
 		{
 			SetDone(idString, false);
-		}
+        }
 
 		private void SetDone(string idString, bool done)
 		{
