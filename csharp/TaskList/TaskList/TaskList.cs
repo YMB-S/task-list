@@ -22,15 +22,11 @@ namespace TaskList
 
 		private long lastId = 0;
 
-		public static void Main(string[] args)
+		public TaskList(IConsole console, ITaskListService taskListService)
 		{
-			new TaskList(new RealConsole()).Run();
-		}
-
-		public TaskList(IConsole console)
-		{
-			this.console = console;
-			// add a logger
+			this.console = console ?? throw new ArgumentNullException(nameof(console));
+			this.service = taskListService ?? throw new ArgumentNullException(nameof(taskListService));
+			//TODO: add a logger
 		}
 
 		public void Run()
@@ -294,13 +290,14 @@ namespace TaskList
 
 		private void Help()
 		{
-			console.WriteLine("Commands:");
-			console.WriteLine("  show");
-			console.WriteLine("  add project <project name>");
-			console.WriteLine("  add task <project name> <task description>");
-			console.WriteLine("  check <task ID>");
-			console.WriteLine("  uncheck <task ID>");
-			console.WriteLine();
+			//console.WriteLine("Commands:");
+			//console.WriteLine("  show");
+			//console.WriteLine("  add project <project name>");
+			//console.WriteLine("  add task <project name> <task description>");
+			//console.WriteLine("  check <task ID>");
+			//console.WriteLine("  uncheck <task ID>");
+			//console.WriteLine();
+			service.Help();
 		}
 
 		private void Error(string errorMessage)

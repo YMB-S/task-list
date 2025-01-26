@@ -1,23 +1,36 @@
 using TaskList;
+using TaskList.Core;
 
+// CLI Mode
 if (args.Length > 0)
 {
-    TaskList.TaskList.Main(args);
+    var builder = WebApplication.CreateBuilder(args);
+    builder.Services.AddScoped<IConsole, RealConsole>();
+    builder.Services.AddScoped<ITaskListService, TaskListService>();
+    builder.Services.AddScoped<TaskList.TaskList>();
+
+    var app = builder.Build();
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var taskList = scope.ServiceProvider.GetRequiredService<TaskList.TaskList>();
+        taskList.Run();
+    }
 }
+// Web mode
 else
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    // Add services to the container.
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
-    builder.Services.AddControllers(); // Register controllers
+    builder.Services.AddControllers();
 
-    //builder.Services.AddScoped<IConsole, RealConsole>();
+    builder.Services.AddScoped<IConsole, RealConsole>();
+    builder.Services.AddScoped<TaskList.TaskList>();
 
     var app = builder.Build();
 
-    // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
     {
         app.UseSwagger();
@@ -25,10 +38,8 @@ else
     }
 
     app.UseHttpsRedirection();
-
     app.UseAuthorization();
-
-    app.MapControllers(); // Map controllers
+    app.MapControllers();
 
     app.Run();
 }
