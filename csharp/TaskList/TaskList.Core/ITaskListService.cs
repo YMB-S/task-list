@@ -2,6 +2,8 @@
 {
     public interface ITaskListService
     {
+        public void ClearDummyData();
+
         public Task? GetTaskById(int id);
 
         public List<Task> GetAllTasks();

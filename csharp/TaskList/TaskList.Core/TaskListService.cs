@@ -31,6 +31,12 @@ namespace TaskList.Core
             CheckTask(2);
         }
 
+        public void ClearDummyData()
+        {
+            projects.Clear();
+            lastTaskIdUsed = 0;
+        }
+
         public Task GetTaskById(int id)
         {
             foreach (var tasks in projects.Values)
