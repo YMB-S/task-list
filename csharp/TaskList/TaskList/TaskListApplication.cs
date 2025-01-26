@@ -27,6 +27,7 @@ else
     builder.Services.AddControllers();
 
     builder.Services.AddScoped<IConsole, RealConsole>();
+    builder.Services.AddScoped<ITaskListService, TaskListService>();
     builder.Services.AddScoped<TaskList.TaskList>();
 
     var app = builder.Build();
