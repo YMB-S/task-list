@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35514.174 d17.12
+VisualStudioVersion = 17.12.35514.174
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskList.Web", "TaskList\TaskList.Web.csproj", "{F399C267-24D8-40FC-BDEA-A2658AB1DE4F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskList.App", "TaskList\TaskList.App.csproj", "{F399C267-24D8-40FC-BDEA-A2658AB1DE4F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFiles", "{DCB36901-FDF1-4674-808F-5061A787B41F}"
 	ProjectSection(SolutionItems) = preProject
