@@ -16,5 +16,6 @@
 
         public void UncheckTask(int id);
 
+        public void SetDeadline(int taskId, DateOnly deadlineDate);
     }
 }

@@ -37,11 +37,19 @@ namespace TaskList
         }
 
         [HttpPost]
-        [Route("projects/{project_name}/tasks")]
+        [Route("projects/{projectName}/tasks")]
         public IActionResult AddTask(string projectName, string taskDescription)
         {
             taskListService.AddTask(projectName, taskDescription);
             return CreatedAtAction("AddTask", $"{projectName}: {taskDescription}");
+        }
+
+        [HttpPut]
+        [Route("tasks/{taskId}")]
+        public IActionResult UpdateDeadline(int taskId, string deadlineDateString)
+        {
+            taskListService.SetDeadline(taskId, DateOnly.Parse(deadlineDateString));
+            return CreatedAtAction("UpdateDeadline", $"{taskId}: {deadlineDateString}");
         }
     }
 }

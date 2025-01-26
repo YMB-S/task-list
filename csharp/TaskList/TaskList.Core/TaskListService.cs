@@ -18,6 +18,12 @@ namespace TaskList.Core
 
         private void AddDummyData()
         {
+            AddProject("ortec-interview");
+            AddTask("ortec-interview", "finish-tasklist-application");
+            AddTask("ortec-interview", "attend-second-interview");
+            SetDeadline(1, DateOnly.Parse("27-01-2025"));
+            SetDeadline(2, DateOnly.Parse("28-01-2025"));
+
             AddProject("home-improvement");
             AddTask("home-improvement", "paint-wall");
             AddTask("home-improvement", "vacuum-hallway");
@@ -103,6 +109,12 @@ namespace TaskList.Core
         private long GetNextAvailableTaskId()
         {
             return ++lastTaskIdUsed;
+        }
+
+        public void SetDeadline(int taskId, DateOnly deadlineDate)
+        {
+            Task taskToAddDeadlineTo = GetTaskById(taskId) ?? throw new KeyNotFoundException($"Task not found for id {taskId}");
+            taskToAddDeadlineTo.Deadline = deadlineDate;
         }
     }
 }

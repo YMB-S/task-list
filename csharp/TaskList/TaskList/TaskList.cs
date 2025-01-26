@@ -26,7 +26,6 @@ namespace TaskList
 
 		public void Run()
 		{
-			AddDummyData();
             console.WriteLine(startupText);
 
             while (true)
@@ -40,20 +39,6 @@ namespace TaskList
 				Execute(command);
 			}
 		}
-
-		private void AddDummyData()
-		{
-            Execute("add project ortec-interview");
-            Execute("add task ortec-interview finish-tasklist-application");
-            Execute("add task ortec-interview attend-second-interview");
-            Execute("deadline 1 27-01-2025");
-            Execute("deadline 2 28-01-2025");
-
-            Execute("add project learn-more");
-            Execute("add task learn-more read-book");
-            Execute("add task learn-more read-another-book");
-            Execute("deadline 3 01-01-2026");
-        }
 
 		private void Execute(string commandLine)
 		{
@@ -246,18 +231,11 @@ namespace TaskList
 
             try
 			{
-                DateOnly deadlineDate = DateOnly.Parse(splitCommandLine[2]);
-				Task? taskToAddDeadlineTo = GetTaskById(int.Parse(taskId));
-				if (taskToAddDeadlineTo == null)
-				{
-					console.WriteLine($"Cannot find task with id {taskId}.");
-					return;
-				}
-				taskToAddDeadlineTo!.Deadline = deadlineDate;
+				taskListService.SetDeadline(int.Parse(taskId), DateOnly.Parse(splitCommandLine[2]));
             }
 			catch (Exception e)
 			{
-				Error($"Error occurred during parsing: {e}");
+				Error($"Error occurred during setting deadline: {e}");
 			}
 		}
 
