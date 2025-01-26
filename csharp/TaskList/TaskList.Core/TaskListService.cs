@@ -106,15 +106,37 @@ namespace TaskList.Core
             identifiedTask.Done = done;
         }
 
-        private long GetNextAvailableTaskId()
-        {
-            return ++lastTaskIdUsed;
-        }
-
         public void SetDeadline(int taskId, DateOnly deadlineDate)
         {
             Task taskToAddDeadlineTo = GetTaskById(taskId) ?? throw new KeyNotFoundException($"Task not found for id {taskId}");
             taskToAddDeadlineTo.Deadline = deadlineDate;
+        }
+
+        public Dictionary<string, List<Task>> GetTasksGroupedByDeadline()
+        {
+            var allTasks = GetAllTasks();
+
+            var tasksGroupedByDeadline = allTasks
+            .Where(t => t.Deadline.HasValue)
+            .OrderBy(t => t.Deadline!.Value)
+            .GroupBy(t => t.Deadline!.Value)
+            .ToDictionary(g => g.Key.ToString(), g => g.ToList());
+
+            var tasksWithoutDeadline = allTasks
+                .Where(t => !t.Deadline.HasValue)
+                .ToList();
+
+            if (tasksWithoutDeadline.Count > 0)
+            {
+                tasksGroupedByDeadline.Add("No deadline", tasksWithoutDeadline);
+            }
+
+            return tasksGroupedByDeadline;
+        }
+
+        private long GetNextAvailableTaskId()
+        {
+            return ++lastTaskIdUsed;
         }
     }
 }

@@ -142,33 +142,16 @@ namespace TaskList
 
 		private void ShowTasksGroupedByDeadline()
 		{
-			List<Task> allTasks = GetAllTasks();
-
-            var tasksGroupedByDeadline = allTasks
-            .Where(t => t.Deadline.HasValue)
-            .OrderBy(t => t.Deadline!.Value)
-            .GroupBy(t => t.Deadline!.Value)
-            .ToDictionary(g => g.Key, g => g.ToList());
-
-            var tasksWithoutDeadline = allTasks
-                .Where(t => !t.Deadline.HasValue)
-                .ToList();
+			var tasksGroupedByDeadline = taskListService.GetTasksGroupedByDeadline();
 
 			console.WriteLine(Environment.NewLine);
             foreach (var group in tasksGroupedByDeadline)
             {
-                console.WriteLine($"{group.Key.ToShortDateString()}:");
+                console.WriteLine($"{group.Key}:");
                 foreach (var task in group.Value)
                 {
                     console.WriteLine($"\t{task.Id}: {task.Description}");
                 }
-            }
-
-            console.WriteLine(Environment.NewLine);
-            console.WriteLine("No deadline:");
-            foreach (var task in tasksWithoutDeadline)
-            {
-                console.WriteLine($"\t{task.Description}");
             }
         }
 
@@ -203,25 +186,6 @@ namespace TaskList
             {
                 console.WriteLine(e.ToString());
             }
-        }
-
-		private Task? GetTaskById(int id)
-		{
-			try
-			{
-				return taskListService.GetTaskById(id);
-			}
-			catch (KeyNotFoundException e)
-			{
-				console.WriteLine(e.ToString());
-			}
-
-			return null;
-        }
-
-		private List<Task> GetAllTasks()
-		{
-			return taskListService.GetAllTasks();
         }
 
 		private void AddDeadline(string[] splitCommandLine)

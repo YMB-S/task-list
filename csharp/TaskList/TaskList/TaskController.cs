@@ -15,21 +15,21 @@ namespace TaskList
         }
 
         [HttpGet]
-        [Route("tasks")]
+        [Route("Tasks")]
         public IActionResult GetTasks()
         {
             return new JsonResult(taskListService.GetAllTasks());
         }
 
         [HttpGet]
-        [Route("projects")]
+        [Route("Projects")]
         public IActionResult GetProjects()
         {
             return new JsonResult(taskListService.GetAllProjects());
         }
 
         [HttpPost]
-        [Route("projects")]
+        [Route("Projects")]
         public IActionResult AddProject(string projectName)
         {
             taskListService.AddProject(projectName);
@@ -37,7 +37,7 @@ namespace TaskList
         }
 
         [HttpPost]
-        [Route("projects/{projectName}/tasks")]
+        [Route("Projects/AddTask")]
         public IActionResult AddTask(string projectName, string taskDescription)
         {
             taskListService.AddTask(projectName, taskDescription);
@@ -45,11 +45,18 @@ namespace TaskList
         }
 
         [HttpPut]
-        [Route("tasks/{taskId}")]
-        public IActionResult UpdateDeadline(int taskId, string deadlineDateString)
+        [Route("Tasks/SetDeadline")]
+        public IActionResult SetDeadline(int taskId, string deadlineDateString)
         {
             taskListService.SetDeadline(taskId, DateOnly.Parse(deadlineDateString));
-            return CreatedAtAction("UpdateDeadline", $"{taskId}: {deadlineDateString}");
+            return CreatedAtAction("SetDeadline", $"{taskId}: {deadlineDateString}");
+        }
+
+        [HttpGet]
+        [Route("Projects/ViewByDeadline")]
+        public IActionResult GetProjectsByDeadline()
+        {
+            return new JsonResult(taskListService.GetTasksGroupedByDeadline());
         }
     }
 }

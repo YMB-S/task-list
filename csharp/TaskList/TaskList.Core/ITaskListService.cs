@@ -17,5 +17,7 @@
         public void UncheckTask(int id);
 
         public void SetDeadline(int taskId, DateOnly deadlineDate);
+
+        public Dictionary<string, List<Task>> GetTasksGroupedByDeadline();
     }
 }
