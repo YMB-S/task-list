@@ -35,5 +35,13 @@ namespace TaskList
             taskListService.AddProject(projectName);
             return CreatedAtAction("AddProject", projectName);
         }
+
+        [HttpPost]
+        [Route("projects/{project_name}/tasks")]
+        public IActionResult AddTask(string projectName, string taskDescription)
+        {
+            taskListService.AddTask(projectName, taskDescription);
+            return CreatedAtAction("AddTask", $"{projectName}: {taskDescription}");
+        }
     }
 }
