@@ -144,12 +144,19 @@ namespace TaskList
                 }
 			}
 
-            console.WriteLine(Environment.NewLine);
-
             if (amountOfTasksShown == 0)
 			{
-                console.WriteLine("There are no tasks with a deadline of today.");
-			}
+				if (onlyShowTasksWithDeadlineOfToday)
+				{
+					console.WriteLine("There are no tasks with a deadline of today.");
+				}
+				else
+				{
+                    console.WriteLine("There are no tasks to show.");
+                }
+            }
+
+            console.WriteLine(Environment.NewLine);
         }
 
 		private void ShowTasksWithDeadlineOfToday()
