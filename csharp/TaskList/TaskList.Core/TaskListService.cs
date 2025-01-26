@@ -1,4 +1,6 @@
-﻿using System.Xml.Linq;
+﻿using System;
+using System.Xml.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TaskList.Core
 {
@@ -11,6 +13,16 @@ namespace TaskList.Core
         public TaskListService()
         {
             projects = new Dictionary<string, IList<Task>>();
+            AddDummyData();
+        }
+
+        private void AddDummyData()
+        {
+            AddProject("home-improvement");
+            AddTask("home-improvement", "paint-wall");
+            AddTask("home-improvement", "vacuum-hallway");
+            AddTask("home-improvement", "replace-lightbulb");
+            CheckTask(2);
         }
 
         public Task GetTaskById(int id)
@@ -60,10 +72,35 @@ namespace TaskList.Core
                 throw new KeyNotFoundException($"No project named {projectName} was found.");
             }
 
-            projects[projectName].Add(new Task { Id = GetNextAvailableId(), Description = taskDescription, Done = false });
+            projects[projectName].Add(new Task { Id = GetNextAvailableTaskId(), Description = taskDescription, Done = false });
         }
 
-        private long GetNextAvailableId()
+        public void CheckTask(int id)
+        {
+            SetDone(id, true);
+        }
+
+        public void UncheckTask(int id)
+        {
+            SetDone(id, false);
+        }
+
+        private void SetDone(int id, bool done)
+        {
+            var identifiedTask = projects
+                .Select(project => project.Value.FirstOrDefault(task => task.Id == id))
+                .Where(task => task != null)
+                .FirstOrDefault();
+
+            if (identifiedTask == null)
+            {
+                throw new KeyNotFoundException($"No task was found for id {id}.");
+            }
+
+            identifiedTask.Done = done;
+        }
+
+        private long GetNextAvailableTaskId()
         {
             return ++lastTaskIdUsed;
         }

@@ -12,5 +12,9 @@
 
         public void AddTask(string projectName, string taskDescription);
 
+        public void CheckTask(int id);
+
+        public void UncheckTask(int id);
+
     }
 }

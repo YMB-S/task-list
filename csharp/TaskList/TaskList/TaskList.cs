@@ -22,7 +22,6 @@ namespace TaskList
 		{
 			this.console = console ?? throw new ArgumentNullException(nameof(console));
 			this.taskListService = taskListService ?? throw new ArgumentNullException(nameof(taskListService));
-			//TODO: add a logger
 		}
 
 		public void Run()
@@ -264,28 +263,13 @@ namespace TaskList
 
 		private void Check(string idString)
 		{
-			SetDone(idString, true);
-		}
-
-		private void Uncheck(string idString)
-		{
-			SetDone(idString, false);
+            taskListService.CheckTask(int.Parse(idString));
         }
 
-		private void SetDone(string idString, bool done)
+        private void Uncheck(string idString)
 		{
-			int id = int.Parse(idString);
-			var identifiedTask = taskListService.GetAllProjects()
-				.Select(project => project.Value.FirstOrDefault(task => task.Id == id))
-				.Where(task => task != null)
-				.FirstOrDefault();
-			if (identifiedTask == null) {
-				console.WriteLine("Could not find a task with an ID of {0}.", id);
-				return;
-			}
-
-			identifiedTask.Done = done;
-		}
+			taskListService.UncheckTask(int.Parse(idString));
+        }
 
 		private void Help()
 		{

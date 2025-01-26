@@ -6,7 +6,7 @@ if (args.Length > 0)
 {
     var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddScoped<IConsole, RealConsole>();
-    builder.Services.AddScoped<ITaskListService, TaskListService>();
+    builder.Services.AddSingleton<ITaskListService, TaskListService>();
     builder.Services.AddScoped<TaskList.TaskList>();
 
     var app = builder.Build();
@@ -27,7 +27,7 @@ else
     builder.Services.AddControllers();
 
     builder.Services.AddScoped<IConsole, RealConsole>();
-    builder.Services.AddScoped<ITaskListService, TaskListService>();
+    builder.Services.AddSingleton<ITaskListService, TaskListService>();
     builder.Services.AddScoped<TaskList.TaskList>();
 
     var app = builder.Build();
