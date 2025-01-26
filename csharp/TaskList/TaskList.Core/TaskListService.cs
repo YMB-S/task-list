@@ -13,6 +13,21 @@ namespace TaskList.Core
             projects = new Dictionary<string, IList<Task>>();
         }
 
+        public Task GetTaskById(int id)
+        {
+            foreach (var tasks in projects.Values)
+            {
+                foreach (var task in tasks)
+                {
+                    if (task.Id == id)
+                    {
+                        return task;
+                    }
+                }
+            }
+            throw new KeyNotFoundException($"No task found for id {id}");
+        }
+
         public List<Task> GetAllTasks()
         {
             List<Task> allTasks = new();
@@ -28,19 +43,9 @@ namespace TaskList.Core
             return allTasks;
         }
 
-        public Task GetTaskById(int id)
+        public IDictionary<string, IList<Task>> GetAllProjects()
         {
-            foreach (var tasks in projects.Values)
-            {
-                foreach (var task in tasks)
-                {
-                    if (task.Id == id)
-                    {
-                        return task;
-                    }
-                }
-            }
-            throw new KeyNotFoundException($"No task found for id {id}");
+            return projects;
         }
 
         public void AddProject(string projectName)
@@ -61,11 +66,6 @@ namespace TaskList.Core
         private long GetNextAvailableId()
         {
             return ++lastTaskIdUsed;
-        }
-
-        public IDictionary<string, IList<Task>> GetAllProjects()
-        {
-            return this.projects;
         }
     }
 }

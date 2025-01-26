@@ -2,10 +2,11 @@
 {
     public interface ITaskListService
     {
-        public List<Task> GetAllTasks();
-        public IDictionary<string, IList<Task>> GetAllProjects();
-
         public Task? GetTaskById(int id);
+
+        public List<Task> GetAllTasks();
+
+        public IDictionary<string, IList<Task>> GetAllProjects();
 
         public void AddProject(string projectName);
 

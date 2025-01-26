@@ -15,17 +15,13 @@ namespace TaskList
 		private const string CommandUsedToQuitApplication = "quit";
 		public static readonly string startupText = "Welcome to TaskList! Type 'help' for available commands.";
 
-		//private readonly IDictionary<string, IList<Task>> projects = new Dictionary<string, IList<Task>>();
 		private readonly IConsole console;
-
-		ITaskListService service;
-
-		private long lastId = 0;
+        private readonly ITaskListService taskListService;
 
 		public TaskList(IConsole console, ITaskListService taskListService)
 		{
 			this.console = console ?? throw new ArgumentNullException(nameof(console));
-			this.service = taskListService ?? throw new ArgumentNullException(nameof(taskListService));
+			this.taskListService = taskListService ?? throw new ArgumentNullException(nameof(taskListService));
 			//TODO: add a logger
 		}
 
@@ -107,7 +103,7 @@ namespace TaskList
 
 			int amountOfTasksShown = 0;
             
-			foreach (var project in service.GetAllProjects())
+			foreach (var project in taskListService.GetAllProjects())
 			{
                 List<Task> tasksToShow = new();
 
@@ -210,14 +206,14 @@ namespace TaskList
 
 		private void AddProject(string name)
 		{
-			service.AddProject(name);
+			taskListService.AddProject(name);
 		}
 
 		private void AddTask(string projectName, string description)
 		{
 			try
 			{
-				service.AddTask(projectName, description);
+				taskListService.AddTask(projectName, description);
 			}
             catch (KeyNotFoundException e)
             {
@@ -229,7 +225,7 @@ namespace TaskList
 		{
 			try
 			{
-				return service.GetTaskById(id);
+				return taskListService.GetTaskById(id);
 			}
 			catch (KeyNotFoundException e)
 			{
@@ -241,7 +237,7 @@ namespace TaskList
 
 		private List<Task> GetAllTasks()
 		{
-			return service.GetAllTasks();
+			return taskListService.GetAllTasks();
         }
 
 		private void AddDeadline(string[] splitCommandLine)
@@ -279,7 +275,7 @@ namespace TaskList
 		private void SetDone(string idString, bool done)
 		{
 			int id = int.Parse(idString);
-			var identifiedTask = service.GetAllProjects()
+			var identifiedTask = taskListService.GetAllProjects()
 				.Select(project => project.Value.FirstOrDefault(task => task.Id == id))
 				.Where(task => task != null)
 				.FirstOrDefault();
