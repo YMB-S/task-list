@@ -13,6 +13,8 @@ else
     builder.Services.AddSwaggerGen();
     builder.Services.AddControllers(); // Register controllers
 
+    //builder.Services.AddScoped<IConsole, RealConsole>();
+
     var app = builder.Build();
 
     // Configure the HTTP request pipeline.

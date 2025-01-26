@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+
+using TaskList.Core;
 
 namespace TaskList
 {
@@ -13,6 +17,8 @@ namespace TaskList
 
 		private readonly IDictionary<string, IList<Task>> projects = new Dictionary<string, IList<Task>>();
 		private readonly IConsole console;
+
+		ITaskListService service;
 
 		private long lastId = 0;
 
@@ -29,27 +35,32 @@ namespace TaskList
 
 		public void Run()
 		{
-			console.WriteLine(startupText);
+			AddDummyData();
+            console.WriteLine(startupText);
 
-			Execute("add project self-improvement");
-			Execute("add task self-improvement do-thing");
-			Execute("add task self-improvement do-other-thing");
-
-            Execute("add project learn-more");
-            Execute("add task learn-more read-book");
-            Execute("add task learn-more read-another-book");
-            Execute("deadline 3 01/01/2026");
-            //Execute("");
-
-            while (true) {
+            while (true)
+			{
 				console.Write("> ");
 				var command = console.ReadLine();
-				if (command == CommandUsedToQuitApplication) {
+				if (command == CommandUsedToQuitApplication)
+				{
 					break;
 				}
 				Execute(command);
 			}
 		}
+
+		private void AddDummyData()
+		{
+            Execute("add project self-improvement");
+            Execute("add task self-improvement do-thing");
+            Execute("add task self-improvement do-other-thing");
+
+            Execute("add project learn-more");
+            Execute("add task learn-more read-book");
+            Execute("add task learn-more read-another-book");
+            Execute("deadline 3 01-01-2026");
+        }
 
 		private void Execute(string commandLine)
 		{
@@ -58,7 +69,7 @@ namespace TaskList
 
 			switch (command) {
 				case "show":
-					Show();
+					Show(onlyShowTasksWithDeadlineOfToday: false);
 					break;
 				case "add":
 					Add(splitCommandLine);
@@ -75,22 +86,44 @@ namespace TaskList
 				case "deadline":
 					AddDeadline(splitCommandLine);
 					break;
-				default:
+				case "today":
+					ShowTasksWithDeadlineOfToday();
+					break;
+                default:
 					Error($"I don't know what the command {command} is.");
 					break;
 			}
 		}
 
-		private void Show()
+		private void Show(bool onlyShowTasksWithDeadlineOfToday)
 		{
+            const int formattingIdSpace = -5;
+            const int formattingDescriptionSpace = -25;
+            const int formattingDoneSpace = -15;
+            const int formattingDeadlineSpace = -20;
+
+            string header = $"{"Id",formattingIdSpace} {"Description",formattingDescriptionSpace} {"Done",formattingDoneSpace} {"Deadline",formattingDeadlineSpace}";
+
+			int amountOfTasksShown = 0;
+            
 			foreach (var project in projects)
 			{
-				const int formattingIdSpace = -5;
-                const int formattingDescriptionSpace = -25;
-                const int formattingDoneSpace = -15;
-                const int formattingDeadlineSpace = -20;
+                List<Task> tasksToShow = new();
 
-                string header = $"{"Id",formattingIdSpace} {"Description",formattingDescriptionSpace} {"Done",formattingDoneSpace} {"Deadline",formattingDeadlineSpace}";
+				if (onlyShowTasksWithDeadlineOfToday)
+				{
+					var currentDate = DateOnly.FromDateTime(DateTime.Now);
+                    tasksToShow = project.Value.Where(task => task.Deadline == currentDate).Select(task => task).ToList();
+                }
+				else
+				{
+                    tasksToShow = project.Value.Select(task => task).ToList();
+                }
+
+				if (tasksToShow.Count == 0)
+				{
+					continue;
+				}
 
                 console.WriteLine(Environment.NewLine);
                 console.WriteLine($"Tasks for project: {project.Key}");
@@ -99,13 +132,25 @@ namespace TaskList
                 console.WriteLine(header);
                 console.WriteLine(new string('-', header.Length));
 
-                foreach (var task in project.Value)
+                foreach (var task in tasksToShow)
                 {
-                    console.WriteLine($"{task.Id,formattingIdSpace} {task.Description,formattingDescriptionSpace} {(task.Done ? "Yes" : "No"), formattingDoneSpace} {task.Deadline,formattingDeadlineSpace}");
-                }   
+					console.WriteLine($"{task.Id, formattingIdSpace} {task.Description, formattingDescriptionSpace} {(task.Done ? "Yes" : "No"), formattingDoneSpace} {task.Deadline, formattingDeadlineSpace}");
+					amountOfTasksShown++;
+                }
 			}
+
             console.WriteLine(Environment.NewLine);
+
+            if (amountOfTasksShown == 0)
+			{
+                console.WriteLine("There are no tasks with a deadline of today.");
+			}
         }
+
+		private void ShowTasksWithDeadlineOfToday()
+		{
+			Show(onlyShowTasksWithDeadlineOfToday: true);
+		}
 
 		private void Add(string[] splitCommandLine)
 		{
@@ -119,9 +164,6 @@ namespace TaskList
 
 			if (subcommand == "task")
 			{
-				//var projectTask = splitCommandLine[1].Split(" ".ToCharArray(), 2);
-				//AddTask(projectTask[0], projectTask[1]);
-
 				AddTask(splitCommandLine[2], splitCommandLine[3]);
 			}
 		}
