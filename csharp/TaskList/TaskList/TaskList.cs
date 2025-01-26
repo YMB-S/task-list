@@ -15,7 +15,7 @@ namespace TaskList
 		private const string CommandUsedToQuitApplication = "quit";
 		public static readonly string startupText = "Welcome to TaskList! Type 'help' for available commands.";
 
-		private readonly IDictionary<string, IList<Task>> projects = new Dictionary<string, IList<Task>>();
+		//private readonly IDictionary<string, IList<Task>> projects = new Dictionary<string, IList<Task>>();
 		private readonly IConsole console;
 
 		ITaskListService service;
@@ -107,7 +107,7 @@ namespace TaskList
 
 			int amountOfTasksShown = 0;
             
-			foreach (var project in projects)
+			foreach (var project in service.GetAllProjects())
 			{
                 List<Task> tasksToShow = new();
 
@@ -210,40 +210,38 @@ namespace TaskList
 
 		private void AddProject(string name)
 		{
-			projects[name] = new List<Task>();
+			service.AddProject(name);
 		}
 
 		private void AddTask(string projectName, string description)
 		{
-			if (!projects.TryGetValue(projectName, out IList<Task> projectTasks))
+			try
 			{
-				Console.WriteLine("Could not find a project with the name \"{0}\".", projectName);
-				return;
+				service.AddTask(projectName, description);
 			}
-			projectTasks.Add(new Task { Id = NextId(), Description = description, Done = false });
-		}
+            catch (KeyNotFoundException e)
+            {
+                console.WriteLine(e.ToString());
+            }
+        }
 
 		private Task? GetTaskById(int id)
 		{
-            return projects
-                .Select(project => project.Value.FirstOrDefault(task => task.Id == id))
-                .Where(task => task != null)
-                .First();
+			try
+			{
+				return service.GetTaskById(id);
+			}
+			catch (KeyNotFoundException e)
+			{
+				console.WriteLine(e.ToString());
+			}
+
+			return null;
         }
 
 		private List<Task> GetAllTasks()
 		{
-            List<Task> allTasks = new();
-
-            foreach (var listOfTasks in projects.Values)
-            {
-                foreach (var task in listOfTasks)
-                {
-                    allTasks.Add(task);
-                }
-            }
-
-			return allTasks;
+			return service.GetAllTasks();
         }
 
 		private void AddDeadline(string[] splitCommandLine)
@@ -254,8 +252,13 @@ namespace TaskList
             try
 			{
                 DateOnly deadlineDate = DateOnly.Parse(splitCommandLine[2]);
-				Task taskToAddDeadlineTo = GetTaskById(int.Parse(taskId)) ?? throw new FormatException($"Unable to find task for id {taskId}");
-				taskToAddDeadlineTo.Deadline = deadlineDate;
+				Task? taskToAddDeadlineTo = GetTaskById(int.Parse(taskId));
+				if (taskToAddDeadlineTo == null)
+				{
+					console.WriteLine($"Cannot find task with id {taskId}.");
+					return;
+				}
+				taskToAddDeadlineTo!.Deadline = deadlineDate;
             }
 			catch (Exception e)
 			{
@@ -276,7 +279,7 @@ namespace TaskList
 		private void SetDone(string idString, bool done)
 		{
 			int id = int.Parse(idString);
-			var identifiedTask = projects
+			var identifiedTask = service.GetAllProjects()
 				.Select(project => project.Value.FirstOrDefault(task => task.Id == id))
 				.Where(task => task != null)
 				.FirstOrDefault();
@@ -290,24 +293,21 @@ namespace TaskList
 
 		private void Help()
 		{
-			//console.WriteLine("Commands:");
-			//console.WriteLine("  show");
-			//console.WriteLine("  add project <project name>");
-			//console.WriteLine("  add task <project name> <task description>");
-			//console.WriteLine("  check <task ID>");
-			//console.WriteLine("  uncheck <task ID>");
-			//console.WriteLine();
-			service.Help();
+			console.WriteLine("Commands:");
+			console.WriteLine("  show");
+			console.WriteLine("  today");
+			console.WriteLine("  add project <project name>");
+			console.WriteLine("  add task <project name> <task description>");
+			console.WriteLine("  check <task ID>");
+			console.WriteLine("  uncheck <task ID>");
+            console.WriteLine("  deadline <task ID> <deadline date>");
+            console.WriteLine("  view-by-deadline");
+            console.WriteLine();
 		}
 
 		private void Error(string errorMessage)
 		{
 			console.WriteLine(errorMessage);
-		}
-
-		private long NextId()
-		{
-			return ++lastId;
 		}
 	}
 }
